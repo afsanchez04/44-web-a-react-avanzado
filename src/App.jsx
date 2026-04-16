@@ -1,9 +1,8 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import axios from 'axios'
-import { useState } from 'react'
+import { useReducer, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import { useUser } from './hooks/useUser'
 
 const schema = yup.object({
   userInput: yup
@@ -12,6 +11,14 @@ const schema = yup.object({
     .required('El mensaje es obligatorio')
 })
 
+const initialState = {
+  messages: []
+}
+
+const chatReducer = (state, action) => {
+
+}
+
 export const App = () => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
@@ -19,7 +26,7 @@ export const App = () => {
   // Estado que guarda la respuesta de gemma
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
-  const { user } = useUser()
+  const [state, dispatch] = useReducer(chatReducer, initialState)
 
   const handlePregunta = async (data) => {
     console.log(data)
@@ -81,7 +88,6 @@ export const App = () => {
 
         </div>
       </div>
-      <p>{user ? user.name : 'Loading...'}</p>
     </>
   )
 }
