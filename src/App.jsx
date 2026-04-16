@@ -1,4 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
+import axios from 'axios'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
@@ -13,23 +15,70 @@ export const App = () => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   })
+  // Estado que guarda la respuesta de gemma
+  const [response, setResponse] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handlePregunta = (data) => {
+  const handlePregunta = async (data) => {
     console.log(data)
+    setLoading(true)
+    try {
+      const res = await axios.post('http://localhost:11434/api/generate', {
+        model: 'gemma2',
+        prompt: data.userInput,
+        stream: false
+      })
+      setResponse(res.data.response)
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <>
-      <h1>ChatBot</h1>
-      <form onSubmit={handleSubmit(handlePregunta)}>
-        <input
-          type='text'
-          {...register('userInput')}
-          className='w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400'
-        />
-        {errors.userInput && <p className='text-red-500 text-sm'>{errors.userInput.message}</p>}
-        <button className='w-full py-2 rounded transition cursor-pointer bg-blue-600 text-white hover:bg-blue-700'>Preguntar</button>
-      </form>
+      <div className='min-h-screen bg-gray-950 flex items-center justify-center p-4'>
+        <div className='w-full max-w-lg bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col gap-4'>
+
+          {/* Header */}
+          <div className='flex items-center gap-3 pb-4 border-b border-gray-800'>
+            <h1 className='text-lg font-medium text-gray-100'>ChatBot</h1>
+            <span className='ml-auto text-xs bg-blue-950 text-blue-400 font-medium px-3 py-1 rounded-full'>
+              En línea
+            </span>
+          </div>
+
+          {/* Response area */}
+          <div className='min-h-20 bg-gray-800 rounded-xl px-4 py-3 text-sm text-gray-400 leading-relaxed'>
+            {loading ? 'Generando respuesta...' : response}
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(handlePregunta)} className='flex flex-col gap-2'>
+            <div className='flex items-center bg-gray-800 border border-gray-700 rounded-xl px-3 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition'>
+              <input
+                type='text'
+                {...register('userInput')}
+                placeholder='Escribe tu pregunta...'
+                className='flex-1 bg-transparent border-none outline-none py-2.5 text-sm text-gray-100 placeholder-gray-500'
+              />
+            </div>
+
+            {errors.userInput && (
+              <p className='text-red-400 text-xs px-1'>{errors.userInput.message}</p>
+            )}
+
+            <button
+              type='submit'
+              className='w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-sm font-medium py-2.5 rounded-xl transition-all cursor-pointer'
+            >
+              Preguntar
+            </button>
+          </form>
+
+        </div>
+      </div>
     </>
   )
 }
