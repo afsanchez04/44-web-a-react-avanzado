@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
+import { useUser } from './hooks/useUser'
 
 const schema = yup.object({
   userInput: yup
@@ -18,6 +19,7 @@ export const App = () => {
   // Estado que guarda la respuesta de gemma
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
+  const { user } = useUser()
 
   const handlePregunta = async (data) => {
     console.log(data)
@@ -79,6 +81,7 @@ export const App = () => {
 
         </div>
       </div>
+      <p>{user ? user.name : 'Loading...'}</p>
     </>
   )
 }
