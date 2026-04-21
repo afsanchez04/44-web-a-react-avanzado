@@ -20,14 +20,12 @@ const chatReducer = (state, action) => {
   }
 }
 
-// dispatch({ type: 'ADD_MESSAGE', payload: { from: 'bot', text: res.data.response } })
-
 // 2. Crear proveedor
 
 export const ChatProvider = ({ children }) => {
   const [state, dispatch] = useReducer(chatReducer, initialState)
   return (
-    <ChatContext.Provider values={{ state, dispatch }}>
+    <ChatContext.Provider value={{ state, dispatch }}>
       {children}
     </ChatContext.Provider>
   )

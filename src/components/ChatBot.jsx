@@ -17,15 +17,22 @@ export const ChatBot = () => {
     resolver: yupResolver(schema)
   })
   const { state, dispatch } = useContext(ChatContext)
-  const { sendMessage, loading } = useOllama()
+  const { sendMessage } = useOllama()
 
   const handlePregunta = async (data) => {
     console.log(data)
     dispatch({ type: 'ADD_MESSAGE', payload: { from: 'user', text: data.userInput } })
+    reset()
     dispatch({ type: 'SET_LOADING', payload: true })
 
-    setLoading(true)
-    reset()
+    try {
+      const res = await sendMessage(data.userInput)
+      dispatch({ type: 'ADD_MESSAGE', payload: { from: 'bot', text: res.data.response } })
+    } catch (error) {
+      dispatch({ type: 'ADD_MESSAGE', payload: { from: 'bot', text: 'Error en respuesta' } })
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false })
+    }
   }
 
   return (
@@ -53,7 +60,7 @@ export const ChatBot = () => {
               ))
             }
 
-            {loading && (
+            {state.loading && (
               <p className='italic text-gray-500'>Generando respuesta...</p>
             )}
           </div>
