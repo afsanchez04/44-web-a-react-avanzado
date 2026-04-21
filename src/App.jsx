@@ -16,7 +16,15 @@ const initialState = {
 }
 
 const chatReducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD_MESSAGE':
+      console.log('Agregando mensaje...')
+      console.log(state)
+      return { ...state, messages: [...state.messages, action.payload] }
 
+    default:
+      return state
+  }
 }
 
 export const App = () => {
@@ -38,6 +46,8 @@ export const App = () => {
         stream: false
       })
       setResponse(res.data.response)
+      dispatch({ type: 'ADD_MESSAGE', payload: { from: 'user', text: data.userInput } })
+      dispatch({ type: 'ADD_MESSAGE', payload: { from: 'bot', text: res.data.response } })
     } catch (error) {
       console.error('Error:', error)
     } finally {
