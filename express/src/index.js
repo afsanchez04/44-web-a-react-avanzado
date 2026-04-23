@@ -13,6 +13,24 @@ app.get( "/users", (req, res) => {
   res.json(users)
 } )
 
+app.post( "/users", (req, res) => {
+  const { name } = req.body
+
+  if(!name){
+    return res.status(400).json({message: "El nombre es obligatorio"})
+  }
+
+  const newUser = {
+    id: users.length + 1,
+    name
+  }
+
+  users.push(newUser)
+  res.status(201).json(newUser)
+
+
+} )
+
 app.listen( PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`)
 } )
