@@ -12,31 +12,38 @@ import { infoPeliculas } from './peliculas.js'
 config() 
 
 const app = express()
+app.use( express.json() )
 
+//Ruta raíz
 app.get("/", (req, res) => {
   res.send("Servidor de express corriendo...")
 })
 
+//Recursos generales
 app.get("/api/peliculas", (req, res) => {
   res.send(infoPeliculas)
 })
-
 /* Acción */
-
 app.get("/api/peliculas/accion", (req, res) => {
   res.send( infoPeliculas.accion )
 })
+/* Drama */
+app.get("/api/peliculas/drama", (req, res) => {
+  res.send( infoPeliculas.drama )
+})
 
-app.get("/api/peliculas/accion/:titulo", (req, res) => {
+//Rutas más específicas
+app.get("/api/peliculas/accion/titulo/:titulo/:year", (req, res) => {
+  const {titulo, year} = req.params
 
-  const titulo = req.params.titulo
-  const resultados = infoPeliculas.accion.filter( pelicula => pelicula.titulo === titulo )
+  const resultados = infoPeliculas.accion.filter( pelicula => pelicula.titulo === titulo && pelicula.year === Number(year) )
 
-  if( resultados.length === 0 ){
-    return res.status(404).send(`No se encontraron resultados para ${titulo}`)
+  if(resultados.length === 0){
+    return res.status(404).send(`No se encontraron resultados para ${titulo} del ${year}`)
   }
 
-  res.send( resultados )
+  res.send(resultados)
+
 })
 
 app.get("/api/peliculas/accion/year/:year", (req, res) => {
@@ -52,24 +59,32 @@ app.get("/api/peliculas/accion/year/:year", (req, res) => {
   res.send(resultados)
 
 })
+//Parámetros query:
+// http://localhost:5000/api/peliculas/accion/pais/colombia?ordenar=year
+app.get("/api/peliculas/accion/pais/:pais", (req, res) => {
 
-app.get("/api/peliculas/accion/titulo/:titulo/:year", (req, res) => {
-  const {titulo, year} = req.params
+  const pais = req.params.pais
+  const resultados = infoPeliculas.accion.filter( pelicula => pelicula.pais === pais )
 
-  const resultados = infoPeliculas.accion.filter( pelicula => pelicula.titulo === titulo && pelicula.year === Number(year) )
-
-  if(resultados.length === 0){
-    return res.status(404).send(`No se encontraron resultados para ${titulo} del ${year}`)
+  if( req.query.ordenar === "year" ){
+    return res.send( resultados.sort( (a,b) => b.year - a.year  ) )
   }
 
   res.send(resultados)
 
-})
+} )
 
-/* Drama */
+app.get("/api/peliculas/accion/:titulo", (req, res) => {
 
-app.get("/api/peliculas/drama", (req, res) => {
-  res.send( infoPeliculas.drama )
+  const titulo = req.params.titulo
+  const resultados = infoPeliculas.accion.filter( pelicula => pelicula.titulo === titulo )
+
+  if( resultados.length === 0 ){
+    return res.status(404).send(`No se encontraron resultados para ${titulo}`)
+  }
+
+  console.log(req.query.ordenar)
+  res.send( resultados )
 })
 
 app.get("/api/peliculas/drama/:titulo", (req, res) => {
@@ -80,6 +95,21 @@ app.get("/api/peliculas/drama/:titulo", (req, res) => {
 }
     res.send(resultados)
 })
+
+/* POST */
+
+app.post( "/api/peliculas", (req, res) => {
+
+  const nuevaPelicula = req.body
+
+  console.log("Película recibida: ", nuevaPelicula)
+
+  res.status(201).send({
+    mensaje: "Película recibida con éxito",
+    datos: nuevaPelicula
+  })
+
+}  )
 
 const PORT = process.env.PORT || 5000
 
