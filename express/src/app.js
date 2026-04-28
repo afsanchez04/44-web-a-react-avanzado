@@ -7,7 +7,11 @@
   }, */
 
 import { config } from 'dotenv'
+import express from 'express'
 config() 
+
+const app = express()
+
 
 //Variables de entorno
 console.log(process.env.PORT)
