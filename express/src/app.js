@@ -8,10 +8,12 @@
 
 import { config } from 'dotenv'
 import express from 'express'
+import cors from 'cors'
 import { infoPeliculas } from './peliculas.js'
 config() 
 
 const app = express()
+app.use( cors() )
 app.use( express.json() )
 
 //Ruta raíz
@@ -102,11 +104,41 @@ app.post( "/api/peliculas", (req, res) => {
 
   const nuevaPelicula = req.body
 
-  console.log("Película recibida: ", nuevaPelicula)
+  const { titulo, director, year, pais, genero } = nuevaPelicula
+
+  if(!titulo || !director || !year || !pais || !genero){
+    return res.status(400).send({
+      error: "Faltan datos obligatorios"
+    })
+  }
+
+  if(!infoPeliculas[genero]){
+    res.status(400).send({
+      error: `El género ${genero} no existe`
+    })
+  }
+
+  //Generar un nuevo ID
+            //                                        infoPeliculas[accion][2].id 
+  const nuevoId = infoPeliculas[genero].length > 0 ? infoPeliculas[genero][infoPeliculas[genero].length - 1].id + 1 : 1
+
+  const peliculaFinal = {
+    id: nuevoId,
+    titulo, 
+    director,
+    year: Number(year),
+    pais, 
+    visitas: nuevaPelicula.visitas || 0
+  }
+
+  //Guardar en la base de datos peliculas.js
+  infoPeliculas[genero].push(peliculaFinal)
+
+  console.log("Película guardada: ", peliculaFinal)
 
   res.status(201).send({
     mensaje: "Película recibida con éxito",
-    datos: nuevaPelicula
+    datos: peliculaFinal
   })
 
 }  )
