@@ -5,6 +5,8 @@ import fs from 'fs'
 dotenv.config()
 const app = express()
 
+app.use( express.json() )
+
 const PORT = process.env.PORT
 
 
@@ -35,6 +37,29 @@ app.get( "/peliculas", (req, res)  => {
   const data = readData()
   res.json(data)
 })
+
+//POST
+app.post("/peliculas", (req, res) => {
+
+  const data = readData()
+  const body = req.body
+
+  const newMovie = {
+    id: data.accion.length + 1,
+    ...body
+  }
+
+  data.accion.push(newMovie)
+
+  writeData(data)
+
+  res.json(newMovie)
+
+})
+
+//PUT
+
+//DELETE
 
 
 app.listen(PORT, () => {

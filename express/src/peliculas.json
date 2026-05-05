@@ -20,6 +20,13 @@
       "director": "George Miller",
       "year": 2015,
       "pais": "usa"
+    },
+    {
+      "id": 4,
+      "titulo": "El maquinista",
+      "director": "Spilberg",
+      "year": "2001",
+      "pais": "usa"
     }
   ],
   "drama": [
@@ -46,4 +53,3 @@
     }
   ]
 }
-
