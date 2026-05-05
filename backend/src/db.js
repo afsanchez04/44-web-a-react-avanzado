@@ -4,6 +4,9 @@ import { join } from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath( import.meta.url )
+
+console.log(__filename)
+
 const __dirname = join(__filename, "..")
 
 const file = join(__dirname, "db.json")
