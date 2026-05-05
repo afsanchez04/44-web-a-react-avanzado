@@ -58,6 +58,26 @@ app.post("/peliculas", (req, res) => {
 })
 
 //PUT
+app.put( "/peliculas/:id", (req, res) => {
+  const data = readData()
+  const body = req.body
+
+  const id = parseInt( req.params.id )
+
+  const peliculaIndex = data.accion.findIndex( movie => movie.id === id )
+  
+  data.accion[peliculaIndex] = {
+
+    ...data.accion[peliculaIndex],
+    ...body
+
+  }
+
+  writeData(data)
+  res.json({message: "Película actualizada con éxito"})
+
+} )
+
 
 //DELETE
 
