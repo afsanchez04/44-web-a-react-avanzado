@@ -33,6 +33,15 @@ app.post("/api/chat", async (req, res) => {
 
 })
 
+//POST: Agrega nuevos mensajes
+app.post( "/api/messages", async (req, res) => {
+
+  const { text, sender } = req.body
+
+  
+
+} )
+
 app.listen( PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`)
 } )
