@@ -4,6 +4,8 @@ import * as yup from 'yup'
 import { useContext } from 'react'
 import { ChatContext } from '../context/ChatContext'
 import { useOllama } from '../hooks/useOllama'
+import { useEffect } from 'react'
+import axios from 'axios'
 
 const schema = yup.object({
   userInput: yup
@@ -19,6 +21,28 @@ export const ChatBot = () => {
   const { state, dispatch } = useContext(ChatContext)
   const { sendMessage } = useOllama()
 
+  // Cargar los mensajes guardados al iniciar la app
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const res = await axios.get('http://localhost:3001/api/messages')
+        res.data.forEach(m => {
+          dispatch({
+            type: 'ADD_MESSAGE',
+            payload: {
+              from: m.sender === 'user' ? 'user' : 'bot',
+              text: m.text
+            }
+          })
+        })
+      } catch (error) {
+        console.error('Error al cargar mensajes', error)
+      }
+    }
+
+    fetchMessages()
+  }, [dispatch])
+
   const handlePregunta = async (data) => {
     console.log(data)
     dispatch({ type: 'ADD_MESSAGE', payload: { from: 'user', text: data.userInput } })
@@ -26,7 +50,19 @@ export const ChatBot = () => {
     dispatch({ type: 'SET_LOADING', payload: true })
 
     try {
+      await axios.post('http://localhost:3001/api/messages', {
+        sender: 'user',
+        text: data.userInput
+      })
+
       const res = await sendMessage(data.userInput)
+
+      await axios.post('http://localhost:3001/api/messages', {
+        sender: 'bot',
+        text: res.data.response
+      }
+      )
+
       dispatch({ type: 'ADD_MESSAGE', payload: { from: 'bot', text: res.data.response } })
     } catch (error) {
       dispatch({ type: 'ADD_MESSAGE', payload: { from: 'bot', text: 'Error en respuesta' } })

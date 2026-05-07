@@ -38,7 +38,23 @@ app.post( "/api/messages", async (req, res) => {
 
   const { text, sender } = req.body
 
-  
+  if(!text || !sender){
+    return res.status(400).json( {error: "Campos incompletos"}  )
+  }
+
+  const newMessage = {
+    id: Date.now(),
+    text, 
+    sender, 
+    timestamp: new Date().toISOString()
+  }
+
+  await db.read()
+  db.data.messages.push(newMessage)
+  await db.write()
+
+  res.status(201).json(newMessage)
+
 
 } )
 
